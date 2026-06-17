@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors({
      origin:[
         "http://localhost:3000",
-        "https://front-node-azure.vercel.app/"
+        "https://front-node-azure.vercel.app"
      ] 
      }));
 const PORT = process.env.PORT;
