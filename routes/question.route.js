@@ -1,38 +1,22 @@
-const express =
-require('express');
+const express = require('express');
+
+const router = express.Router();
 
 const {
+    AjouterQuestion,
+    GetQuestions
+} = require('../controllers/question.controller');
 
-AjouterQuestion,
-GetQuestions
+// ==========================
+// AJOUTER UNE QUESTION
+// POST : /api/question/ajouter
+// ==========================
+router.post('/ajouter', AjouterQuestion);
 
-}
+// ==========================
+// AFFICHER TOUTES LES QUESTIONS
+// GET : /api/question
+// ==========================
+router.get('/', GetQuestions);
 
-=
-
-require(
-'../controllers/question.controller'
-);
-
-const router =
-express.Router();
-
-
-
-// ajouter
-
-router.post(
-'/ajouter',
-AjouterQuestion
-);
-
-
-// afficher
-
-router.get(
-'/',
-GetQuestions
-);
-
-module.exports =
-router;
+module.exports = router;
