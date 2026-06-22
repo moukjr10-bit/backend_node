@@ -1,16 +1,45 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
 
-module.exports = (req, res, next) => {
-  const token = req.header('Authorization');
+module.exports = async (req, res, next) => {
+  const token = req.header("Authorization");
 
-  if (!token) return res.status(401).json({ message: 'Accès refusé' });
+  if (!token) {
+    return res.status(401).json({
+      message: "Accès refusé. Token absent."
+    });
+  }
 
   try {
-    const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
-    req.user = decoded;
+    // Enlève "Bearer " du token reçu
+    const vraiToken = token.replace("Bearer ", "");
+
+    // Vérifie le token
+    const decoded = jwt.verify(
+      vraiToken,
+      process.env.JWT_SECRET
+    );
+
+    // decoded contient par exemple : { id: "..." }
+    // On recherche l'utilisateur dans MongoDB
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Utilisateur introuvable."
+      });
+    }
+
+    // L'utilisateur connecté est disponible dans les controllers
+    req.user = user;
+
     next();
+
   } catch (err) {
-    res.status(400).json({ message: 'Token invalide' });
+    console.log(err);
+
+    return res.status(401).json({
+      message: "Token invalide ou expiré."
+    });
   }
 };
