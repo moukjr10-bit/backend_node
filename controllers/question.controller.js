@@ -40,7 +40,7 @@ exports.AjouterQuestion = async (req, res) => {
 };
 
 // ==========================
-// AFFICHER LES QUESTIONS
+// AFFICHER TOUTES LES QUESTIONS
 // ==========================
 exports.GetQuestions = async (req, res) => {
   try {
@@ -51,6 +51,34 @@ exports.GetQuestions = async (req, res) => {
     res.status(200).json({
       total: questions.length,
       questions: questions
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+// ==========================
+// AFFICHER UNE QUESTION
+// ==========================
+exports.GetUneQuestion = async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id)
+      .populate('auteur', 'prenom nom')
+      .populate('reponse.user', 'prenom nom');
+
+    if (!question) {
+      return res.status(404).json({
+        message: 'Question introuvable'
+      });
+    }
+
+    res.status(200).json({
+      question: question
     });
 
   } catch (error) {

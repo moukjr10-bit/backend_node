@@ -3,20 +3,18 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    AjouterQuestion,
-    GetQuestions
+  AjouterQuestion,
+  GetQuestions,
+  GetUneQuestion
 } = require('../controllers/question.controller');
 
-// ==========================
-// AJOUTER UNE QUESTION
-// POST : /api/question/ajouter
-// ==========================
+// Ajouter une question
 router.post('/ajouter', AjouterQuestion);
 
-// ==========================
-// AFFICHER TOUTES LES QUESTIONS
-// GET : /api/question
-// ==========================
+// Afficher toutes les questions
 router.get('/', GetQuestions);
+
+// Afficher une seule question avec son id
+router.get('/:id', GetUneQuestion);
 
 module.exports = router;
