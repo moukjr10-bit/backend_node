@@ -7,8 +7,6 @@ exports.AjouterQuestion = async (req, res) => {
   try {
     const { titre, description, tag } = req.body;
 
-    // auteur ne vient plus du frontend
-    // il vient de l'utilisateur reconnu par le token
     if (!titre || !description || !tag) {
       return res.status(400).json({
         message: "Tous les champs sont obligatoires"
@@ -26,7 +24,6 @@ exports.AjouterQuestion = async (req, res) => {
       message: "Question créée avec succès",
       question
     });
-
   } catch (error) {
     console.log(error);
 
@@ -49,7 +46,6 @@ exports.GetQuestions = async (req, res) => {
       total: questions.length,
       questions: questions
     });
-
   } catch (error) {
     console.log(error);
 
@@ -77,7 +73,51 @@ exports.GetUneQuestion = async (req, res) => {
     res.status(200).json({
       question: question
     });
+  } catch (error) {
+    console.log(error);
 
+    res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+// ==========================
+// AJOUTER UNE RÉPONSE
+// ==========================
+exports.AjouterReponse = async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({
+        message: "La réponse est obligatoire"
+      });
+    }
+
+    const question = await Question.findById(req.params.id);
+
+    if (!question) {
+      return res.status(404).json({
+        message: "Question introuvable"
+      });
+    }
+
+    question.reponse.push({
+      user: req.user._id,
+      text: text
+    });
+
+    await question.save();
+
+    const questionAvecReponses = await Question.findById(req.params.id)
+      .populate("auteur", "prenom nom")
+      .populate("reponse.user", "prenom nom");
+
+    res.status(201).json({
+      message: "Réponse ajoutée avec succès",
+      question: questionAvecReponses
+    });
   } catch (error) {
     console.log(error);
 

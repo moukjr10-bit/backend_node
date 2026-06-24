@@ -11,17 +11,13 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    // Enlève "Bearer " du token reçu
     const vraiToken = token.replace("Bearer ", "");
 
-    // Vérifie le token
     const decoded = jwt.verify(
       vraiToken,
       process.env.JWT_SECRET
     );
 
-    // decoded contient par exemple : { id: "..." }
-    // On recherche l'utilisateur dans MongoDB
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
@@ -30,13 +26,11 @@ module.exports = async (req, res, next) => {
       });
     }
 
-    // L'utilisateur connecté est disponible dans les controllers
     req.user = user;
 
     next();
-
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
 
     return res.status(401).json({
       message: "Token invalide ou expiré."
