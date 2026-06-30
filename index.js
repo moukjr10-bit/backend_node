@@ -1,46 +1,41 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
 const app = express();
 
-// DB
-const connectBD = require('./config/db');
+const connectBD = require("./config/db");
 
-// Routes
-const userRoute = require('./routes/user.route');
-const questionRoute = require('./routes/question.route');
-
-// connexion mongodb
 connectBD();
 
-// middleware
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: [
-      'http://localhost:5173',
-      'https://front-node-azure.vercel.app'
-    ],
-    credentials: true
-  })
-);
+app.use(cors());
 
-// routes
-app.use('/api/auth', userRoute);
+const userRoute = require("./routes/user.route");
+const questionRoute = require("./routes/question.route");
+const reponseRoute = require("./routes/reponse.route");
 
-app.use('/api/question', questionRoute);
+app.use("/api/auth", userRoute);
 
-// test
-app.get('/', (req, res) => {
-  res.send('Bienvenue sur Mini Stack Overflow');
+app.use("/api/question", questionRoute);
+
+app.use("/api/reponse", reponseRoute);
+
+app.get("/", (req, res) => {
+
+  res.send("Bienvenue sur Mini Stack Overflow");
+
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur ${PORT}`);
+
+  console.log(
+    `Serveur démarré sur http://localhost:${PORT}`
+  );
+
 });

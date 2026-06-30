@@ -1,102 +1,158 @@
-const User = require('../models/user.model');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const User = require("../models/user.model");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-// la fonction d'inscription
+// =======================
+// INSCRIPTION
+// =======================
+exports.inscription = async (req, res) => {
+  try {
 
-exports.inscription = async (req , res) => {
-   
-    try {
-        
-        const {prenom , nom , email , password} = req.body ;
+    const { prenom, nom, email, password } = req.body;
 
-        // verifier si l'utilisateur existe 
-
-        let user = await User.findOne({email});
-
-        // si il existe il de dira que le user a deja un compte avec erreur 400
-
-        if(user){
-            return res.status(400).json({message:"utilisateur existe deja"})
-        }
-
-        // hasher le password
-
-        const verifier = await  bcrypt.genSalt(10);
-        const hashagePassword = await bcrypt.hash(password , verifier)
-
-        // creer l'utilisateur
-
-        user = await User.create({
-            prenom ,
-            nom,
-            email,
-            password:hashagePassword
-        })
-
-        res.status(201).json({ message: "Inscription réussie" });
-        console.log('inscription reussi');
-
-
-    } catch (error) {
-           res.status(500).json(error);
-            console.log(error);
+    if (!prenom || !nom || !email || !password) {
+      return res.status(400).json({
+        message: "Tous les champs sont obligatoires."
+      });
     }
 
-    
-}
+    const existe = await User.findOne({ email });
 
-//  fonction de connexion    
+    if (existe) {
+      return res.status(400).json({
+        message: "Cet utilisateur existe déjà."
+      });
+    }
 
-exports.connexion = async (req , res ) => { 
-     try {
-          const {email , password } = req.body ;
-        //   verification de l'email 
-        const user = await User.findOne({email}) ;
-        if(!user){
-            return res.status(400).json({message : 'Utilisateur introuvable '})
-        }
-        // verification du password 
-         const correspond = await bcrypt.compare(password , user.password) ;
-         if(!correspond){
-            return res.status(400).json({message :'mots de passe incorrect'});
-         }
+    const salt = await bcrypt.genSalt(10);
 
-        //  generer un token 
-         const token = jwt.sign( { id: user._id}, process.env.JWT_SECRET , { expiresIn : "1d" } );
+    const passwordHash = await bcrypt.hash(password, salt);
 
-         res.json({ 
-            token ,
-            user :{
-                id: user._id,
-                prenom : user.prenom ,
-                nom : user.nom ,
-                email : user.email 
-            }
-         });
-         console.log('connexion reussie')
+    const user = await User.create({
+      prenom,
+      nom,
+      email,
+      password: passwordHash
+    });
 
-     } catch (error) {
-         res.status(500).json(error)
-         console.log(error);
-     }
+    res.status(201).json({
+      message: "Inscription réussie.",
+      user: {
+        id: user._id,
+        prenom: user.prenom,
+        nom: user.nom,
+        email: user.email
+      }
+    });
 
-}
+  } catch (error) {
 
+    console.log(error);
 
+    res.status(500).json({
+      message: "Erreur serveur."
+    });
 
+  }
+};
 
+// =======================
+// CONNEXION
+// =======================
+exports.connexion = async (req, res) => {
 
+  try {
 
+    const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Veuillez remplir tous les champs."
+      });
+    }
 
+    const user = await User.findOne({ email });
 
+    if (!user) {
+      return res.status(404).json({
+        message: "Utilisateur introuvable."
+      });
+    }
 
+    const verifier = await bcrypt.compare(
+      password,
+      user.password
+    );
 
+    if (!verifier) {
+      return res.status(400).json({
+        message: "Mot de passe incorrect."
+      });
+    }
 
+    const token = jwt.sign(
+      {
+        id: user._id
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d"
+      }
+    );
 
+    res.status(200).json({
+      message: "Connexion réussie.",
+      token,
+      user: {
+        id: user._id,
+        prenom: user.prenom,
+        nom: user.nom,
+        email: user.email
+      }
+    });
 
-// la fonction de connexion
+  } catch (error) {
 
+    console.log(error);
 
+    res.status(500).json({
+      message: "Erreur serveur."
+    });
 
+  }
+
+};
+
+// =======================
+// PROFIL
+// =======================
+exports.profil = async (req, res) => {
+
+  try {
+
+    const user = await User.findById(req.user._id)
+      .select("-password");
+
+    if (!user) {
+
+      return res.status(404).json({
+        message: "Utilisateur introuvable."
+      });
+
+    }
+
+    res.status(200).json({
+      user
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: "Erreur serveur."
+    });
+
+  }
+
+};

@@ -1,10 +1,22 @@
-const express = require('express');
-const userRoute = express.Router();
+const express = require("express");
 
-const { inscription, connexion } = require('../controllers/user.controller');
+const router = express.Router();
 
-// ROUTES
-userRoute.post('/inscription', inscription);
-userRoute.post('/connexion', connexion);
+const {
+  inscription,
+  connexion,
+  profil
+} = require("../controllers/user.controller");
 
-module.exports = userRoute;
+const auth = require("../middleware/user.middleware");
+
+// Inscription
+router.post("/inscription", inscription);
+
+// Connexion
+router.post("/connexion", connexion);
+
+// Profil
+router.get("/profil", auth, profil);
+
+module.exports = router;
