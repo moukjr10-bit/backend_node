@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema(
   {
@@ -19,7 +19,7 @@ const questionSchema = new mongoose.Schema(
 
     auteur: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
 
@@ -28,24 +28,23 @@ const questionSchema = new mongoose.Schema(
       default: 0,
     },
 
-    commentaire: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-        text: String,
-      }
-    ],
-
     reponse: [
       {
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
+          ref: "User",
         },
-        text: String,
-      }
+
+        text: {
+          type: String,
+          required: true,
+        },
+
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
     ],
   },
   {
@@ -53,4 +52,4 @@ const questionSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Question', questionSchema);
+module.exports = mongoose.model("Question", questionSchema);
