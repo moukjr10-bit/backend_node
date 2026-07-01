@@ -17,7 +17,7 @@ exports.AjouterQuestion = async (req, res) => {
       titre,
       description,
       tag,
-      auteur: req.user._id
+      auteur: req.user.id
     });
 
     res.status(201).json({
