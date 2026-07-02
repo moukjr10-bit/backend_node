@@ -11,7 +11,7 @@ const reponseSchema=new mongoose.Schema(
     auteur:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:true
+      
     },
 
     texte:{
